@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>US Immigration Toolkit</title>
+<style>
+  :root{
+    --bg:#f4f6f9;--card:#fff;--accent:#6366f1;--accent2:#4f46e5;
+    --green:#10b981;--yellow:#f59e0b;--red:#ef4444;--blue:#3b82f6;
+    --text:#1e2a3a;--muted:#6b7280;--border:#e5e7eb;
+    --tag-bg:#ede9fe;--tag-text:#5b21b6;--sidebar-w:260px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+
+  #sidebar{width:var(--sidebar-w);background:#1e2235;color:#cbd5e1;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
+  .sb-logo{padding:20px 20px 16px;border-bottom:1px solid #2d3a52;}
+  .sb-logo .logo-mark{display:flex;align-items:center;gap:10px;}
+  .sb-logo .dot{width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;}
+  .sb-logo .brand{font-weight:700;font-size:15px;color:#f1f5f9;}
+  .sb-logo .sub{font-size:11px;color:#64748b;margin-top:2px;}
+  .sb-section{padding:16px 12px 8px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;cursor:pointer;color:#94a3b8;font-size:13px;font-weight:500;margin:1px 6px;transition:all .15s;}
+  .sb-item:hover{background:#2d3a52;color:#f1f5f9;}
+  .sb-item.active{background:var(--accent);color:#fff;}
+  .sb-item .ico{width:16px;text-align:center;font-size:14px;}
+  .sb-badge{margin-left:auto;background:#334155;border-radius:12px;padding:2px 7px;font-size:10px;color:#94a3b8;}
+  .sb-item.active .sb-badge{background:rgba(255,255,255,.2);color:#fff;}
+
+  #main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+  #topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+  .topbar-title{font-weight:600;font-size:15px;color:var(--text);}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .badge-alert{background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;}
+  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;}
+
+  #content{padding:28px;flex:1;}
+  .page{display:none;}
+  .page.active{display:block;}
+
+  .hero{background:linear-gradient(135deg,#1e2235 0%,#2d1b69 100%);border-radius:16px;padding:32px 36px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden;}
+  .hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;background:rgba(99,102,241,.15);border-radius:50%;}
+  .hero h1{font-size:24px;font-weight:700;margin-bottom:8px;}
+  .hero p{color:#a5b4fc;font-size:14px;max-width:600px;line-height:1.6;}
+  .hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+  .hero-tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;transition:all .15s;}
+  .hero-tag:hover{background:rgba(255,255,255,.2);}
+
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
+  .stat-card{background:#fff;border-radius:12px;padding:16px 18px;border:1px solid var(--border);}
+  .stat-card .label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+  .stat-card .value{font-size:22px;font-weight:700;color:var(--text);}
+  .stat-card .delta{font-size:11px;margin-top:3px;}
+  .delta.up{color:var(--green);}
+  .delta.warn{color:var(--yellow);}
+  .delta.down{color:var(--red);}
+
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .section-header h2{font-size:17px;font-weight:700;}
+  .visa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:32px;}
+  .visa-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+  .visa-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px);}
+  .visa-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);}
+  .visa-card.green::before{background:var(--green);}
+  .visa-card.yellow::before{background:var(--yellow);}
+  .visa-card.blue::before{background:var(--blue);}
+  .vc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+  .vc-badge{font-size:20px;font-weight:800;color:var(--accent);}
+  .visa-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:12px;background:var(--tag-bg);color:var(--tag-text);}
+  .vc-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+  .vc-sub{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;}
+  .vc-meta{display:flex;gap:16px;margin-bottom:14px;}
+  .vc-meta-item{font-size:11px;color:var(--muted);}
+  .vc-meta-item strong{display:block;font-size:12px;font-weight:600;color:var(--text);}
+  .vc-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .pill{font-size:11px;background:#f3f4f6;color:var(--text);padding:3px 8px;border-radius:12px;}
+  .pill.green{background:#d1fae5;color:#065f46;}
+  .pill.yellow{background:#fef3c7;color:#92400e;}
+  .pill.red{background:#fee2e2;color:#991b1b;}
+  .pill.blue{background:#dbeafe;color:#1e40af;}
+  .vc-link{font-size:12px;color:var(--accent);font-weight:500;text-decoration:none;}
+
+  .detail-hero{background:linear-gradient(135deg,#1e2235,#312e81);color:#fff;border-radius:16px;padding:28px 32px;margin-bottom:24px;}
+  .detail-hero h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .detail-hero p{color:#a5b4fc;font-size:13px;line-height:1.7;max-width:720px;}
+  .detail-hero .meta-strip{display:flex;flex-wrap:wrap;gap:20px;margin-top:18px;}
+  .meta-item .ml{font-size:10px;color:#818cf8;text-transform:uppercase;letter-spacing:.05em;}
+  .meta-item .mv{font-size:15px;font-weight:700;color:#fff;}
+
+  .steps-container{margin-bottom:28px;}
+  .steps-container h2{font-size:17px;font-weight:700;margin-bottom:16px;}
+  .step-row{display:flex;gap:16px;margin-bottom:16px;}
+  .step-num{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+  .step-body{flex:1;background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+  .step-body h3{font-size:13px;font-weight:700;margin-bottom:5px;}
+  .step-body p{font-size:12px;color:var(--muted);line-height:1.65;}
+  .step-body .step-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;}
+  .sm-item{font-size:11px;color:var(--muted);}
+  .sm-item strong{color:var(--text);}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+  @media(max-width:760px){.two-col{grid-template-columns:1fr;}}
+  .info-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+  .info-card h3{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+  .info-card ul{list-style:none;padding:0;}
+  .info-card ul li{font-size:12px;color:var(--muted);padding:5px 0;border-bottom:1px solid #f3f4f6;line-height:1.55;display:flex;align-items:flex-start;gap:7px;}
+  .info-card ul li:last-child{border-bottom:none;}
+  .info-card ul li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
+  .info-card ul li.warn::before{content:'⚠';color:var(--yellow);}
+  .info-card ul li.cross::before{content:'✗';color:var(--red);}
+
+  .cost-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+  .cost-table th{background:#f8f9fc;text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid var(--border);}
+  .cost-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border);}
+  .cost-table tr:hover td{background:#fafbfd;}
+
+  /* EB-1 VISUAL TIMELINE */
+  .visual-timeline{margin-bottom:28px;}
+  .visual-timeline h2{font-size:17px;font-weight:700;margin-bottom:6px;}
+  .visual-timeline .vt-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+  .vt-track{position:relative;padding-left:36px;}
+  .vt-track::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:2px;background:var(--border);}
+  .vt-item{position:relative;margin-bottom:0;}
+  .vt-item:last-child .vt-body{border-bottom:none;}
+  .vt-dot{position:absolute;left:-27px;top:18px;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 2px var(--accent);z-index:1;}
+  .vt-dot.green{background:var(--green);box-shadow:0 0 0 2px var(--green);}
+  .vt-dot.yellow{background:var(--yellow);box-shadow:0 0 0 2px var(--yellow);}
+  .vt-dot.red{background:var(--red);box-shadow:0 0 0 2px var(--red);}
+  .vt-connector{position:absolute;left:-21px;top:32px;bottom:0;width:2px;background:var(--border);}
+  .vt-body{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .vt-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;}
+  .vt-phase{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:3px;}
+  .vt-phase.green{color:var(--green);}
+  .vt-phase.yellow{color:var(--yellow);}
+  .vt-title{font-size:13px;font-weight:700;color:var(--text);}
+  .vt-duration{flex-shrink:0;background:var(--tag-bg);color:var(--tag-text);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+  .vt-duration.green{background:#d1fae5;color:#065f46;}
+  .vt-duration.yellow{background:#fef3c7;color:#92400e;}
+  .vt-duration.red{background:#fee2e2;color:#991b1b;}
+  .vt-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+  .vt-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .vt-tag{font-size:10px;background:#f3f4f6;color:var(--text);padding:2px 8px;border-radius:10px;}
+  .vt-cumulative{font-size:11px;font-weight:600;color:var(--muted);margin-top:4px;}
+
+  .compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+  @media(max-width:900px){.compare-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:600px){.compare-grid{grid-template-columns:1fr;}}
+  .compare-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+  .compare-card .cc-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .compare-card .cc-val{font-size:20px;font-weight:800;}
+  .compare-card .cc-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .alert-box{border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:12px;line-height:1.6;}
+  .alert-box.warn{background:#fef3c7;border:1px solid #fde68a;color:#92400e;}
+  .alert-box.info{background:#ede9fe;border:1px solid #ddd6fe;color:#5b21b6;}
+  .alert-box.danger{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;}
+  .alert-box.blue{background:#dbeafe;border:1px solid #bfdbfe;color:#1e40af;}
+
+  .resources-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:24px;}
+  .resource-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;}
+  .resource-card .rc-ico{font-size:20px;flex-shrink:0;}
+  .resource-card .rc-body a{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;}
+  .resource-card .rc-body a:hover{text-decoration:underline;}
+  .resource-card .rc-body p{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  .tab-nav{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
+  .tab-btn{padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;}
+  .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+  .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);cursor:pointer;font-weight:500;margin-bottom:20px;}
+  .back-btn:hover{text-decoration:underline;}
+
+  .footnote{font-size:11px;color:var(--muted);line-height:1.6;background:#f8f9fc;border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-top:24px;}
+
+  .timeline-bar{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:24px;}
+  .timeline-bar h3{font-size:13px;font-weight:700;margin-bottom:14px;}
+  .tl-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .tl-label{width:200px;font-size:11px;color:var(--muted);font-weight:500;flex-shrink:0;}
+  .tl-track{flex:1;height:8px;background:#f3f4f6;border-radius:20px;overflow:hidden;}
+  .tl-fill{height:100%;border-radius:20px;background:var(--accent);}
+  .tl-val{width:100px;font-size:11px;font-weight:600;text-align:right;}
+
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#334155;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="logo-mark">
+      <div class="dot">US</div>
+      <div>
+        <div class="brand">ImmigrationHub</div>
+        <div class="sub">Work Visa Toolkit</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-section">Overview</div>
+  <div class="sb-item active" onclick="showPage('dashboard',this)"><span class="ico">🏠</span>Dashboard</div>
+
+  <div class="sb-section">Work Visas</div>
+  <div class="sb-item" onclick="showPage('h1b',this)"><span class="ico">⭐</span>H-1B — Specialty Occ.<span class="sb-badge">Deep Dive</span></div>
+  <div class="sb-item" onclick="showPage('l1',this)"><span class="ico">🏢</span>L-1 — Intracompany</div>
+  <div class="sb-item" onclick="showPage('o1',this)"><span class="ico">🏆</span>O-1 — Extraordinary</div>
+  <div class="sb-item" onclick="showPage('e3',this)"><span class="ico">🇦🇺</span>E-3 — Australian</div>
+  <div class="sb-item" onclick="showPage('tn',this)"><span class="ico">🍁</span>TN — USMCA</div>
+  <div class="sb-item" onclick="showPage('j1',this)"><span class="ico">🎓</span>J-1 — Exchange</div>
+
+  <div class="sb-section">Student Visas</div>
+  <div class="sb-item" onclick="showPage('f1',this)"><span class="ico">📚</span>F-1 — Academic Student</div>
+  <div class="sb-item" onclick="showPage('opt',this)"><span class="ico">💼</span>OPT / CPT — Student Work</div>
+  <div class="sb-item" onclick="showPage('m1',this)"><span class="ico">🔧</span>M-1 — Vocational</div>
+
+  <div class="sb-section">Visitor Visas</div>
+  <div class="sb-item" onclick="showPage('b12',this)"><span class="ico">✈️</span>B-1/B-2 — Business/Tourism</div>
+
+  <div class="sb-section">Permanent Residency</div>
+  <div class="sb-item" onclick="showPage('greencard',this)"><span class="ico">🟢</span>Green Card (EB)<span class="sb-badge">Deep Dive</span></div>
+
+  <div class="sb-section">Tools</div>
+  <div class="sb-item" onclick="showPage('resources',this)"><span class="ico">🔗</span>Key Resources</div>
+  <div class="sb-item" onclick="showPage('compare',this)"><span class="ico">⚖️</span>Visa Comparison</div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <span class="topbar-title" id="topbar-title">Dashboard — US Immigration Toolkit</span>
+    <div class="topbar-right">
+      <span class="badge-alert">⚠ H-1B $100K fee active · Updated Mar 2026</span>
+      <button class="btn-primary" onclick="showPage('resources',document.querySelector('[onclick*=resources]'))">Resources</button>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="hero">
+        <h1>US Immigration Toolkit</h1>
+        <p>Comprehensive, attorney-reviewed guide for foreign nationals and employers navigating US work, student, and visitor visas — plus the full employment-based green card pathway. Current as of March 2026.</p>
+        <div class="hero-tags">
+          <span class="hero-tag" onclick="showPage('h1b',null)">⭐ H-1B</span>
+          <span class="hero-tag" onclick="showPage('l1',null)">🏢 L-1</span>
+          <span class="hero-tag" onclick="showPage('o1',null)">🏆 O-1</span>
+          <span class="hero-tag" onclick="showPage('e3',null)">🇦🇺 E-3</span>
+          <span class="hero-tag" onclick="showPage('tn',null)">🍁 TN</span>
+          <span class="hero-tag" onclick="showPage('j1',null)">🎓 J-1</span>
+          <span class="hero-tag" onclick="showPage('f1',null)">📚 F-1</span>
+          <span class="hero-tag" onclick="showPage('opt',null)">💼 OPT/CPT</span>
+          <span class="hero-tag" onclick="showPage('m1',null)">🔧 M-1</span>
+          <span class="hero-tag" onclick="showPage('b12',null)">✈️ B-1/B-2</span>
+          <span class="hero-tag" onclick="showPage('greencard',null)">🟢 Green Card</span>
+        </div>
+      </div>
+
+      <div class="alert-box danger">
+        <strong>⚠ Critical 2025–2026 Update:</strong> A Presidential Proclamation (Sept. 19, 2025) now requires employers to pay an additional <strong>$100,000 fee</strong> for new H-1B petitions filed on or after Sept. 21, 2025. A new weighted lottery (effective Feb. 27, 2026) will favor higher-wage/skill applicants starting FY2027.
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="label">H-1B Annual Cap</div><div class="value">85,000</div><div class="delta warn">65K regular + 20K Masters</div></div>
+        <div class="stat-card"><div class="label">New H-1B Fee (2025)</div><div class="value">$100K+</div><div class="delta down">Presidential Proclamation</div></div>
+        <div class="stat-card"><div class="label">India EB-2 Backlog</div><div class="value">~15 yrs</div><div class="delta down">Per-country cap limits</div></div>
+        <div class="stat-card"><div class="label">USCIS Pending Cases</div><div class="value">11M+</div><div class="delta down">Record backlog Jul 2025</div></div>
+        <div class="stat-card"><div class="label">O-1 Approval Rate</div><div class="value">94%</div><div class="delta up">FY2025 data</div></div>
+      </div>
+
+      <div class="section-header"><h2>Work Visas</h2></div>
+      <div class="visa-grid">
+        <div class="visa-card" onclick="showPage('h1b',null)">
+          <div class="vc-top"><span class="vc-badge">H-1B</span><span class="visa-tag">SPECIALTY OCC.</span></div>
+          <div class="vc-title">Specialty Occupation Worker</div>
+          <div class="vc-sub">Most common US work visa. For specialty occupations requiring at least a bachelor's degree. Subject to annual lottery.</div>
+          <div class="vc-pills"><span class="pill green">Dual Intent</span><span class="pill yellow">Cap: 85K/yr</span><span class="pill red">$100K+ Fee</span></div>
+          <a class="vc-link" onclick="showPage('h1b',null)">Deep Dive →</a>
+        </div>
+        <div class="visa-card green" onclick="showPage('l1',null)">
+          <div class="vc-top"><span class="vc-badge" style="color:var(--green)">L-1</span><span class="visa-tag" style="background:#d1fae5;color:#065f46">INTRACOMPANY</span></div>
+          <div class="vc-title">Intracompany Transferee</div>
+          <div class="vc-sub">For executives, managers (L-1A) or specialized knowledge employees (L-1B) transferring within a multinational company.</div>
+          <div class="vc-pills"><span class="pill green">No Cap/Lottery</span><span class="pill green">Dual Intent</span><span class="pill yellow">1yr Foreign Work Req.</span></div>
+          <a class="vc-link" onclick="showPage('l1',null)">View Details →</a>
+        </div>
+        <div class="visa-card" onclick="showPage('o1',null)">
+          <div class="vc-top"><span class="vc-badge">O-1</span><span class="visa-tag">EXTRAORDINARY</span></div>
+          <div class="vc-title">Extraordinary Ability / Achievement</div>
+          <div class="vc-sub">For individuals who have risen to the very top of their field in sciences, business, arts, education, athletics, or film/TV. No lottery, no cap.</div>
+          <div class="vc-pills"><span class="pill green">No Cap/Lottery</span><span class="pill green">Dual Intent</span><span class="pill yellow">High Evidence Bar</span></div>
+          <a class="vc-link" onclick="showPage('o1',null)">View Details →</a>
+        </div>
+        <div class="visa-card yellow" onclick="showPage('e3',null)">
+          <div class="vc-top"><span class="vc-badge" style="color:var(--yellow)">E-3</span><span class="visa-tag" style="background:#fef3c7;color:#92400e">AUSTRALIANS ONLY</span></div>
+          <div class="vc-title">Australian Specialty Worker</div>
+          <div class="vc-sub">Exclusively for Australian nationals in specialty occupations. Separate 10,500 annual cap that rarely fills. Unlimited renewals.</div>
+          <div class="vc-pills"><span class="pill green">Unlimited Renewals</span><span class="pill yellow">Australians Only</span></div>
+          <a class="vc-link" onclick="showPage('e3',null)">View Details →</a>
+        </div>
+        <div class="visa-card green" onclick="showPage('tn',null)">
+          <div class="vc-top"><span class="vc-badge" style="color:var(--green)">TN</span><span class="visa-tag" style="background:#d1fae5;color:#065f46">USMCA</span></div>
+          <div class="vc-title">USMCA Professional</div>
+          <div class="vc-sub">For Canadian and Mexican citizens in specific listed professions. Canadians can apply at the US border — no USCIS petition required.</div>
+          <div class="vc-pills"><span class="pill green">No Cap/Lottery</span><span class="pill green">CA: Border Apply</span><span class="pill yellow">CA/MX Only</span></div>
+          <a class="vc-link" onclick="showPage('tn',null)">View Details →</a>
+        </div>
+        <div class="visa-card" onclick="showPage('j1',null)">
+          <div class="vc-top"><span class="vc-badge">J-1</span><span class="visa-tag">EXCHANGE VISITOR</span></div>
+          <div class="vc-title">Exchange Visitor Program</div>
+          <div class="vc-sub">For exchange program participants: research scholars, professors, interns, trainees, au pairs. Requires a State Dept-designated sponsor.</div>
+          <div class="vc-pills"><span class="pill green">No Cap</span><span class="pill red">2-yr Home Rule</span><span class="pill yellow">Sponsor Required</span></div>
+          <a class="vc-link" onclick="showPage('j1',null)">View Details →</a>
+        </div>
+      </div>
+
+      <div class="section-header"><h2>Student Visas</h2></div>
+      <div class="visa-grid">
+        <div class="visa-card blue" onclick="showPage('f1',null)">
+          <div class="vc-top"><span class="vc-badge" style="color:var(--blue)">F-1</span><span class="visa-tag" style="background:#dbeafe;color:#1e40af">ACADEMIC STUDENT</span></div>
+          <div class="vc-title">Academic Student Visa</div>
+          <div class="vc-sub">The primary visa for full-time academic study at US universities, colleges, and language programs. Gateway to OPT/CPT work authorization.</div>
+          <div class="vc-pills"><span class="pill blue">Universities & Colleges</span><span class="pill yellow">Must Maintain Full-Time</span><span class="pill green">OPT/CPT Path</span></div>
+          <a class="vc-link" onclick="showPage('f1',null)">View Details →</a>
+        </div>
+        <div class="visa-card blue" onclick="showPage('opt',null)">
+          <div class="vc-top"><span class="vc-badge" style="color:var(--blue)">OPT</span><span class="visa-tag" style="background:#dbeafe;color:#1e40af">F-1 WORK AUTH</span></div>
+          <div class="vc-title">OPT & CPT — Student Work Authorization</div>
+          <div class="vc-sub">OPT allows F-1 students to work in field-related jobs post-graduation (12 months; 36 months for STEM). CPT allows work integrated into curriculum before graduation.</div>
+          <div class="vc-pills"><span class="pill green">STEM: 36 Months</span><span class="pill yellow">Field-Related Only</span><span class="pill blue">CPT: Pre-Graduation</span></div>
+          <a class="vc-link" onclick="showPage('opt',null)">View Details →</a>
+        </div>
+        <div class="visa-card blue" onclick="showPage('m1',null)">
+          <div class="vc-top"><span class="vc-badge" style="color:var(--blue)">M-1</span><span class="visa-tag" style="background:#dbeafe;color:#1e40af">VOCATIONAL</span></div>
+          <div class="vc-title">Vocational Student Visa</div>
+          <div class="vc-sub">For non-academic vocational/technical programs: culinary arts, flight school, cosmetology, technical training. More restrictive work rules than F-1.</div>
+          <div class="vc-pills"><span class="pill blue">Vocational Only</span><span class="pill yellow">No Work During Study</span><span class="pill yellow">1 yr typical</span></div>
+          <a class="vc-link" onclick="showPage('m1',null)">View Details →</a>
+        </div>
+      </div>
+
+      <div class="section-header"><h2>Visitor Visas</h2></div>
+      <div class="visa-grid">
+        <div class="visa-card" onclick="showPage('b12',null)">
+          <div class="vc-top"><span class="vc-badge">B-1/B-2</span><span class="visa-tag">VISITOR</span></div>
+          <div class="vc-title">Business Visitor / Tourist Visa</div>
+          <div class="vc-sub">B-1 for business activities (meetings, conferences, negotiations). B-2 for tourism and medical treatment. Often issued together as a combined B-1/B-2 visa.</div>
+          <div class="vc-meta"><div class="vc-meta-item"><strong>Up to 6 months</strong>Typical Stay</div><div class="vc-meta-item"><strong>10 yrs</strong>Visa Validity</div></div>
+          <div class="vc-pills"><span class="pill red">No Work Authorized</span><span class="pill yellow">No Study (Full-Time)</span><span class="pill green">Widely Available</span></div>
+          <a class="vc-link" onclick="showPage('b12',null)">View Details →</a>
+        </div>
+      </div>
+
+      <div class="section-header"><h2>Permanent Residency</h2></div>
+      <div class="visa-card" style="max-width:100%;cursor:pointer" onclick="showPage('greencard',null)">
+        <div class="vc-top"><span class="vc-badge" style="color:var(--green);font-size:22px">🟢 EB Green Card</span><span class="visa-tag" style="background:#d1fae5;color:#065f46">PERMANENT RESIDENCY</span></div>
+        <div class="vc-title">Employment-Based Immigrant Visa (EB-1 through EB-5)</div>
+        <div class="vc-sub">The path from work visa to lawful permanent residency. PERM → I-140 → I-485. Timeline: 1 year (EB-1A, most countries) to 30+ years (India EB-3).</div>
+        <div class="vc-pills"><span class="pill green">EB-1: No PERM</span><span class="pill green">EB-2 NIW: Self-Petition</span><span class="pill yellow">India/China: Multi-Year</span><span class="pill red">India EB-2: ~15yr wait</span></div>
+        <a class="vc-link" onclick="showPage('greencard',null)">Full Deep Dive →</a>
+      </div>
+    </div>
+
+    <!-- H-1B PAGE -->
+    <div id="page-h1b" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>⭐ H-1B — Specialty Occupation Visa</h1>
+        <p>The most widely used US work visa. Employer-sponsored, subject to annual lottery, grants dual intent. Major cost increase since Sept. 2025 Presidential Proclamation.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Duration</div><div class="mv">Up to 6 years</div></div>
+          <div class="meta-item"><div class="ml">Annual Cap</div><div class="mv">85,000</div></div>
+          <div class="meta-item"><div class="ml">Start Date</div><div class="mv">October 1</div></div>
+          <div class="meta-item"><div class="ml">Registration Fee</div><div class="mv">$215 (FY2026)</div></div>
+          <div class="meta-item"><div class="ml">+ Proclamation Fee</div><div class="mv">$100,000 (2025+)</div></div>
+        </div>
+      </div>
+      <div class="alert-box danger"><strong>🚨 Presidential Proclamation — Sept. 19, 2025:</strong> Employers must pay an additional <strong>$100,000</strong> per H-1B petition filed on or after Sept. 21, 2025 (new petitions, extensions, amendments, COS). Payment must be via pay.gov before filing. <a href="https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations" target="_blank" style="color:#991b1b;font-weight:600">USCIS Source →</a></div>
+      <div class="alert-box info"><strong>FY2027 Change:</strong> Weighted lottery selection (effective Feb. 27, 2026) will favor higher-wage/skill beneficiaries starting FY2027 cap season.</div>
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('h1b','eligibility',this)">Eligibility</button>
+        <button class="tab-btn" onclick="switchTab('h1b','process',this)">Step-by-Step</button>
+        <button class="tab-btn" onclick="switchTab('h1b','costs',this)">Fees & Costs</button>
+        <button class="tab-btn" onclick="switchTab('h1b','timeline',this)">Timeline</button>
+        <button class="tab-btn" onclick="switchTab('h1b','considerations',this)">Key Considerations</button>
+      </div>
+      <div id="h1b-eligibility">
+        <div class="two-col">
+          <div class="info-card"><h3>✅ Employee Requirements</h3><ul><li>Bachelor's degree or higher (or equivalent) in a specialty field directly related to the job</li><li>The position must qualify as a "specialty occupation" — normally requiring at least a bachelor's</li><li>Foreign degree equivalency accepted (credential evaluation)</li><li>For fashion models: distinguished merit and ability</li></ul></div>
+          <div class="info-card"><h3>🏢 Employer Requirements</h3><ul><li>Valid US employer with FEIN</li><li>Must offer a bona fide specialty occupation role</li><li>Must pay the higher of prevailing wage or actual wage</li><li>Must file LCA with DOL before petition</li><li>Must demonstrate ability to pay the offered wage</li><li class="warn">Must pay $100,000 additional fee (Sept. 2025+)</li></ul></div>
+          <div class="info-card"><h3>📋 Specialty Occupation Examples</h3><ul><li>Software engineers, IT specialists, data scientists</li><li>Financial analysts, accountants, economists</li><li>Architects, civil/mechanical/electrical engineers</li><li>Doctors, physical therapists (with separate licensure)</li><li>Lawyers, market research analysts</li><li>University professors and researchers</li></ul></div>
+          <div class="info-card"><h3>⚡ Cap-Exempt Employers</h3><ul><li>Institutions of higher education (universities, colleges)</li><li>Nonprofits affiliated with or related to universities</li><li>Nonprofit or governmental research organizations</li><li class="warn">Cap-exempt employers can file year-round — no lottery needed</li></ul></div>
+        </div>
+      </div>
+      <div id="h1b-process" style="display:none">
+        <div class="steps-container"><h2>H-1B Process — Step by Step</h2>
+          <div class="step-row"><div class="step-num">1</div><div class="step-body"><h3>Secure Employer Sponsorship</h3><p>A US employer agrees to sponsor. Must have a bona fide specialty occupation job offer and willingness to pay all required fees.</p><div class="step-meta"><span class="sm-item"><strong>Timing:</strong> Before Feb registration window</span></div></div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-body"><h3>File Labor Condition Application (LCA) with DOL</h3><p>Employer files via DOL's FLAG system, attesting to prevailing wage, working conditions, and no strike/lockout. Must be certified before I-129 filing.</p><div class="step-meta"><span class="sm-item"><strong>Fee:</strong> None (DOL)</span><span class="sm-item"><strong>Processing:</strong> ~7 business days</span></div></div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-body"><h3>Online Registration with USCIS (Lottery)</h3><p>Employer registers each beneficiary during the annual window (~March 1–20). Fee: $215/beneficiary. If registrations exceed cap, USCIS conducts lottery.</p><div class="step-meta"><span class="sm-item"><strong>FY2026 registered:</strong> ~344,000 unique beneficiaries</span></div></div></div>
+          <div class="step-row"><div class="step-num">4</div><div class="step-body"><h3>Lottery Results</h3><p>USCIS selects registrations. Under the beneficiary-centric model (since FY2025), each person can only be selected once regardless of multiple employer submissions. Notified late March.</p></div></div>
+          <div class="step-row"><div class="step-num">5</div><div class="step-body"><h3>Pay $100,000 Proclamation Fee (pay.gov)</h3><p>For petitions on/after Sept. 21, 2025 — must pay before filing. Proof of scheduled payment required with I-129. Narrow national-interest exceptions only.</p><div class="step-meta"><span class="sm-item"><strong>Fee:</strong> $100,000 per petition</span></div></div></div>
+          <div class="step-row"><div class="step-num">6</div><div class="step-body"><h3>File Form I-129 with USCIS</h3><p>Selected employers file I-129 with certified LCA, employee credentials, job offer letter, and ability-to-pay proof. 90-day filing window opens April 1.</p><div class="step-meta"><span class="sm-item"><strong>Base fee:</strong> $730 + ACWIA + fraud + asylum fees</span><span class="sm-item"><strong>Premium:</strong> +$2,965 for 15-day processing</span></div></div></div>
+          <div class="step-row"><div class="step-num">7</div><div class="step-body"><h3>USCIS Adjudication</h3><p>USCIS reviews; may issue RFE. If approved, I-797 Notice issued. Premium Processing guarantees 15-day response (not final approval if RFE issued).</p><div class="step-meta"><span class="sm-item"><strong>Standard:</strong> 3–6 months</span><span class="sm-item"><strong>Premium:</strong> 15 business days</span></div></div></div>
+          <div class="step-row"><div class="step-num">8</div><div class="step-body"><h3>Visa Stamp (if abroad) / Status Begins Oct. 1</h3><p>If outside the US, apply for H-1B visa stamp at US consulate with I-797. If in valid US status, change of status is effective October 1.</p><div class="step-meta"><span class="sm-item"><strong>MRV fee:</strong> $185</span><span class="sm-item"><strong>Start date:</strong> October 1</span></div></div></div>
+          <div class="step-row"><div class="step-num">9</div><div class="step-body"><h3>Extensions & AC21 Beyond 6 Years</h3><p>Initial approval: 3 years, extendable to 6. With pending/approved I-140 and PERM filed 365+ days, extensions beyond 6 years available in 1- or 3-year increments.</p></div></div>
+        </div>
+        <div class="footnote">⚖️ <strong>Legal Note:</strong> Consult a licensed immigration attorney. <a href="https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations" target="_blank">USCIS H-1B Official Page →</a></div>
+      </div>
+      <div id="h1b-costs" style="display:none">
+        <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">H-1B Filing Fees (2025–2026)</h2>
+        <div class="alert-box warn">Always verify current amounts at <a href="https://www.uscis.gov/forms/filing-fees" target="_blank">uscis.gov/forms/filing-fees</a>.</div>
+        <table class="cost-table">
+          <tr><th>Fee Component</th><th>Amount</th><th>Paid By</th><th>Notes</th></tr>
+          <tr><td>H-1B Registration Fee</td><td>$215</td><td>Employer</td><td>Per beneficiary, annual registration</td></tr>
+          <tr><td><strong>Presidential Proclamation Fee</strong></td><td><strong>$100,000</strong></td><td>Employer</td><td>Petitions on/after Sept. 21, 2025. Via pay.gov before filing.</td></tr>
+          <tr><td>Form I-129 Base Fee</td><td>$730</td><td>Employer</td><td>Required for all I-129 petitions</td></tr>
+          <tr><td>ACWIA Training Fee</td><td>$750–$1,500</td><td>Employer</td><td>$750 for ≤25 FTE; $1,500 for 26+ FTE</td></tr>
+          <tr><td>Fraud Prevention Fee</td><td>$500</td><td>Employer</td><td>Initial petitions and transfers</td></tr>
+          <tr><td>Asylum Program Fee</td><td>$600</td><td>Employer</td><td>Most employer petitioners ($300 small employers)</td></tr>
+          <tr><td>Premium Processing (optional)</td><td>$2,965</td><td>Employer or Employee</td><td>Guarantees 15-business-day USCIS response</td></tr>
+          <tr><td>MRV Visa Fee (abroad)</td><td>$185</td><td>Employee</td><td>Paid to US consulate for visa stamp</td></tr>
+          <tr><td>Attorney Fees</td><td>$3,000–$8,000</td><td>Typically Employer</td><td>Employer must pay minimum required fees</td></tr>
+          <tr style="background:#fef3c7"><td><strong>Total (no premium)</strong></td><td><strong>~$103,000–$104,000</strong></td><td>Employer</td><td>Includes $100K Proclamation fee</td></tr>
+          <tr style="background:#fee2e2"><td><strong>Total (with premium)</strong></td><td><strong>~$106,000–$107,000</strong></td><td>Employer</td><td></td></tr>
+        </table>
+        <div class="footnote">⚠️ Employers cannot legally charge H-1B workers for ACWIA, fraud, or base filing fees. The $100K Proclamation fee cannot be charged to the employee.</div>
+      </div>
+      <div id="h1b-timeline" style="display:none">
+        <div class="timeline-bar">
+          <h3>H-1B Annual Timeline (Cap-Subject, FY2027 Example)</h3>
+          <div class="tl-row"><div class="tl-label">Feb–Mar: Employer Prep / LCA</div><div class="tl-track"><div class="tl-fill" style="width:8%"></div></div><div class="tl-val">~4 weeks</div></div>
+          <div class="tl-row"><div class="tl-label">Mar 1–20: USCIS Registration</div><div class="tl-track"><div class="tl-fill" style="width:6%"></div></div><div class="tl-val">3 weeks</div></div>
+          <div class="tl-row"><div class="tl-label">Late March: Lottery Results</div><div class="tl-track"><div class="tl-fill" style="width:3%"></div></div><div class="tl-val">~1 week</div></div>
+          <div class="tl-row"><div class="tl-label">Apr–Jun: File I-129 Petition</div><div class="tl-track"><div class="tl-fill" style="width:10%"></div></div><div class="tl-val">90-day window</div></div>
+          <div class="tl-row"><div class="tl-label">USCIS Standard Processing</div><div class="tl-track"><div class="tl-fill" style="width:40%"></div></div><div class="tl-val">3–6 months</div></div>
+          <div class="tl-row"><div class="tl-label">USCIS Premium Processing</div><div class="tl-track"><div class="tl-fill" style="width:8%"></div></div><div class="tl-val">15 biz days</div></div>
+          <div class="tl-row"><div class="tl-label">Consular Processing (abroad)</div><div class="tl-track"><div class="tl-fill" style="width:15%"></div></div><div class="tl-val">4–12 weeks</div></div>
+          <div class="tl-row"><div class="tl-label">Employment Start Date</div><div class="tl-track"><div class="tl-fill" style="width:100%;background:var(--green)"></div></div><div class="tl-val">October 1 ✓</div></div>
+        </div>
+        <div class="alert-box info">Cap-exempt employers (universities, nonprofits, govt research) can file year-round: 3–6 months standard or 15 business days with premium.</div>
+      </div>
+      <div id="h1b-considerations" style="display:none">
+        <div class="two-col">
+          <div class="info-card"><h3>✅ Advantages</h3><ul><li>Dual intent — pursue green card simultaneously</li><li>H-4 spouse may be eligible for work authorization if I-140 is approved</li><li>AC21 portability after 180 days of I-485 pending</li><li>Renewable indefinitely with pending green card</li></ul></div>
+          <div class="info-card"><h3>⚠ Risks & Limitations</h3><ul><li class="warn">$100,000 employer fee dramatically increases cost</li><li class="warn">~25–30% lottery selection rate</li><li class="warn">60-day grace period after job loss</li><li class="cross">Tied to sponsoring employer (limited portability)</li></ul></div>
+          <div class="info-card"><h3>🔄 Alternatives if Not Selected</h3><ul><li>Cap-exempt employer (university, nonprofit)</li><li>TN visa (Canadian or Mexican citizen)</li><li>E-3 visa (Australian citizen)</li><li>L-1 (within multinational company)</li><li>O-1 (if extraordinary ability qualifies)</li><li>EB-2 NIW self-petition (researchers/national interest)</li></ul></div>
+          <div class="info-card"><h3>📎 Key Resources</h3><ul><li><a href="https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations" target="_blank" style="color:var(--accent)">USCIS H-1B Page →</a></li><li><a href="https://www.dol.gov/agencies/eta/foreign-labor/programs/h-1b" target="_blank" style="color:var(--accent)">DOL LCA / Prevailing Wage →</a></li><li><a href="https://www.fragomen.com" target="_blank" style="color:var(--accent)">Fragomen Insights →</a></li><li><a href="https://www.waylit.com" target="_blank" style="color:var(--accent)">Waylit Platform →</a></li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GREEN CARD PAGE -->
+    <div id="page-greencard" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>🟢 Employment-Based Green Card (EB)</h1>
+        <p>The path to US lawful permanent residency through employment. Five preference categories (EB-1 through EB-5). Timeline ranges from ~1 year (EB-1A, most countries) to 30+ years (India EB-3).</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Categories</div><div class="mv">EB-1 to EB-5</div></div>
+          <div class="meta-item"><div class="ml">PERM (EB-2/3)</div><div class="mv">16–18 months avg</div></div>
+          <div class="meta-item"><div class="ml">I-140 Standard</div><div class="mv">6–12 months</div></div>
+          <div class="meta-item"><div class="ml">I-140 Premium</div><div class="mv">15–45 days</div></div>
+          <div class="meta-item"><div class="ml">India EB-2 Wait</div><div class="mv">~13–15 years</div></div>
+        </div>
+      </div>
+      <div class="alert-box warn"><strong>⚠ Country of Birth Matters:</strong> Per-country visa limits create massive backlogs for India and China nationals. Most other countries have little or no wait. Check the monthly <a href="https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html" target="_blank" style="color:#92400e;font-weight:600">State Dept Visa Bulletin →</a></div>
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('gc','categories',this)">EB Categories</button>
+        <button class="tab-btn" onclick="switchTab('gc','process',this)">Step-by-Step Process</button>
+        <button class="tab-btn" onclick="switchTab('gc','eb1timeline',this)">EB-1 Case Timeline</button>
+        <button class="tab-btn" onclick="switchTab('gc','costs',this)">Fees & Costs</button>
+        <button class="tab-btn" onclick="switchTab('gc','backlogs',this)">Backlogs by Category</button>
+        <button class="tab-btn" onclick="switchTab('gc','considerations',this)">Key Considerations</button>
+      </div>
+
+      <div id="gc-categories">
+        <div class="visa-grid">
+          <div class="visa-card"><div class="vc-top"><span class="vc-badge">EB-1A</span><span class="visa-tag">EXTRAORDINARY ABILITY</span></div><div class="vc-title">Extraordinary Ability</div><div class="vc-sub">Self-petition. No PERM, no employer required. Must show national/international acclaim through major award or 3 of 10 USCIS criteria.</div><div class="vc-pills"><span class="pill green">No PERM</span><span class="pill green">Self-Petition</span><span class="pill green">Generally Current</span></div></div>
+          <div class="visa-card"><div class="vc-top"><span class="vc-badge">EB-1B</span><span class="visa-tag">OUTSTANDING RESEARCHER</span></div><div class="vc-title">Outstanding Professors & Researchers</div><div class="vc-sub">Employer-sponsored. Requires international recognition for outstanding achievements and 3+ years experience. No PERM required.</div><div class="vc-pills"><span class="pill green">No PERM</span><span class="pill yellow">Employer Required</span><span class="pill green">Generally Current</span></div></div>
+          <div class="visa-card"><div class="vc-top"><span class="vc-badge">EB-1C</span><span class="visa-tag">MULTINATIONAL MGMT</span></div><div class="vc-title">Multinational Managers & Executives</div><div class="vc-sub">Must have worked abroad 1+ year in last 3 years in exec/managerial capacity. Natural L-1A pathway. No PERM. 45-day premium processing.</div><div class="vc-pills"><span class="pill green">No PERM</span><span class="pill yellow">L-1A Natural Path</span></div></div>
+          <div class="visa-card"><div class="vc-top"><span class="vc-badge">EB-2</span><span class="visa-tag">ADVANCED DEGREE / NIW</span></div><div class="vc-title">Advanced Degree & NIW</div><div class="vc-sub">Master's degree or higher, or exceptional ability. Standard cases require PERM. EB-2 NIW allows self-petition without PERM if work benefits the national interest.</div><div class="vc-pills"><span class="pill green">NIW: No PERM/Sponsor</span><span class="pill yellow">Standard: PERM Required</span><span class="pill red">India: ~13–15 yr wait</span></div></div>
+          <div class="visa-card"><div class="vc-top"><span class="vc-badge">EB-3</span><span class="visa-tag">SKILLED WORKERS</span></div><div class="vc-title">Skilled Workers & Professionals</div><div class="vc-sub">Skilled workers (2+ yrs), professionals (US bachelor's), and other workers. PERM and employer sponsorship required. Most common employer-sponsored category.</div><div class="vc-pills"><span class="pill yellow">PERM Required</span><span class="pill yellow">Employer Required</span><span class="pill red">India: 15–20+ yr wait</span></div></div>
+          <div class="visa-card"><div class="vc-top"><span class="vc-badge">EB-5</span><span class="visa-tag">INVESTOR</span></div><div class="vc-title">Immigrant Investor Program</div><div class="vc-sub">Minimum $800K–$1.05M investment creating 10+ full-time US jobs. No employment requirement. 2-year conditional residency, then remove conditions.</div><div class="vc-pills"><span class="pill yellow">$800K–$1.05M min.</span><span class="pill green">No Employment Req.</span></div></div>
+        </div>
+      </div>
+
+      <div id="gc-process" style="display:none">
+        <div class="steps-container"><h2>EB Green Card Process (EB-2/EB-3 Standard — with PERM)</h2>
+          <div class="step-row"><div class="step-num">1</div><div class="step-body"><h3>Prevailing Wage Determination (PWD)</h3><p>Employer submits ETA-9141 to DOL's NPWC to get the official prevailing wage for the role/location. This sets the wage floor for the green card applicant.</p><div class="step-meta"><span class="sm-item"><strong>Timeline:</strong> 6–8 months avg</span><span class="sm-item"><strong>Fee:</strong> None (DOL)</span></div></div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-body"><h3>PERM Labor Certification (ETA-9089)</h3><p>Employer conducts formal recruitment (job posting, newspaper ads, website, etc.) for ~60–90 days proving no qualified US worker is available. Files ETA-9089 with DOL. Audits add 6–12+ months.</p><div class="step-meta"><span class="sm-item"><strong>DOL adjudication:</strong> 10–16+ months (avg ~499 days as of Dec 2025)</span><span class="sm-item"><strong>Ad costs:</strong> ~$1,000–3,000</span></div></div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-body"><h3>File I-140 Immigrant Petition</h3><p>After PERM approval, employer files I-140 with USCIS. Locks in the priority date for the Visa Bulletin queue. Approved I-140 survives employer changes under AC21 after 180 days.</p><div class="step-meta"><span class="sm-item"><strong>Standard:</strong> 6–12 months</span><span class="sm-item"><strong>Premium:</strong> 15 days (45 days EB-1C/NIW)</span><span class="sm-item"><strong>Fee:</strong> $715 + $600 Asylum Program</span></div></div></div>
+          <div class="step-row"><div class="step-num">4</div><div class="step-body"><h3>Wait for Priority Date (Visa Bulletin)</h3><p>State Dept publishes monthly Visa Bulletins showing which dates are current. India and China nationals may wait years or decades. Monitor travel.state.gov monthly.</p><div class="step-meta"><span class="sm-item"><strong>Rest of World EB-1:</strong> Current (no wait)</span><span class="sm-item"><strong>India EB-2:</strong> ~13–15 years</span></div></div></div>
+          <div class="step-row"><div class="step-num">5</div><div class="step-body"><h3>File I-485 Adjustment of Status (or Consular Processing)</h3><p>If in US: file I-485 when priority date is current. Simultaneously file I-765 (EAD) and I-131 (advance parole). If abroad: DS-260 for consular processing. Medical exam (I-693) required.</p><div class="step-meta"><span class="sm-item"><strong>I-485 fee:</strong> $1,440 (incl. biometrics)</span><span class="sm-item"><strong>DS-260 fee:</strong> $345</span><span class="sm-item"><strong>Processing:</strong> 8–18 months</span></div></div></div>
+          <div class="step-row"><div class="step-num">6</div><div class="step-body"><h3>Biometrics Appointment</h3><p>USCIS schedules biometrics (fingerprints, photo, signature) ~4–8 weeks after I-485 receipt for background checks at an Application Support Center (ASC).</p></div></div>
+          <div class="step-row"><div class="step-num">7</div><div class="step-body"><h3>Interview (if required) & Decision</h3><p>Many employment-based cases are interview-waived. If required, interview at USCIS field office. USCIS approves, issues RFE, or issues NOID.</p><div class="step-meta"><span class="sm-item"><strong>Total I-485 processing:</strong> 8–18 months</span></div></div></div>
+          <div class="step-row"><div class="step-num">8</div><div class="step-body"><h3>Green Card Issued</h3><p>Form I-551 (Permanent Resident Card) mailed after approval. Valid 10 years; renewable. Citizenship eligibility after 5 years (3 years if married to US citizen).</p></div></div>
+        </div>
+        <div class="footnote">⚖️ EB-1A, EB-1B, and EB-2 NIW skip Steps 1–2 (no PERM required). Source: <a href="https://www.uscis.gov/green-card/green-card-eligibility/green-card-through-a-job" target="_blank">USCIS Employment Green Card →</a></div>
+      </div>
+
+      <!-- EB-1 VISUAL TIMELINE TAB -->
+      <div id="gc-eb1timeline" style="display:none">
+        <div class="visual-timeline">
+          <h2>EB-1A Case Timeline — Step-by-Step Visual</h2>
+          <p class="vt-sub">This example shows a typical EB-1A self-petition for a professional from a non-backlogged country (Rest of World). EB-1A requires no PERM and no employer sponsor, making it significantly faster than EB-2/EB-3. Times are estimates as of March 2026.</p>
+
+          <div class="compare-grid">
+            <div class="compare-card"><div class="cc-label">Fastest Path (with Premium)</div><div class="cc-val" style="color:var(--green)">12–18 mo</div><div class="cc-sub">Rest of World</div></div>
+            <div class="compare-card"><div class="cc-label">India-Born Estimate</div><div class="cc-val" style="color:var(--yellow)">4–6 yrs</div><div class="cc-sub">EB-1 backlog ~3 yrs</div></div>
+            <div class="compare-card"><div class="cc-label">No PERM Needed</div><div class="cc-val" style="color:var(--green)">✓</div><div class="cc-sub">Saves 16–18 months</div></div>
+            <div class="compare-card"><div class="cc-label">No Employer Needed</div><div class="cc-val" style="color:var(--green)">✓</div><div class="cc-sub">Self-petition allowed</div></div>
+            <div class="compare-card"><div class="cc-label">I-140 Premium</div><div class="cc-val">15 days</div><div class="cc-sub">$2,965 fee</div></div>
+            <div class="compare-card"><div class="cc-label">vs. EB-2 NIW (India)</div><div class="cc-val" style="color:var(--red)">13–15 yrs</div><div class="cc-sub">EB-1A dramatically faster</div></div>
+          </div>
+
+          <div class="vt-track">
+
+            <div class="vt-item">
+              <div class="vt-dot"></div>
+              <div class="vt-body">
+                <div class="vt-header">
+                  <div><div class="vt-phase">Phase 1 — Preparation</div><div class="vt-title">Build & Document Extraordinary Ability Evidence</div></div>
+                  <div class="vt-duration yellow">1–4 months</div>
+                </div>
+                <div class="vt-desc">Gather comprehensive evidence meeting at least 3 of the 10 USCIS criteria (or one major award like a Nobel Prize). Work with an immigration attorney to draft a compelling petition narrative. Evidence includes: nationally/internationally recognized awards, published work, high salary data, critical employment evidence, judging of others' work, original contributions, press coverage, professional memberships.</div>
+                <div class="vt-tags"><span class="vt-tag">No govt filing in this phase</span><span class="vt-tag">Attorney prep: ~$5,000–10,000</span><span class="vt-tag">3 of 10 criteria required</span></div>
+                <div class="vt-cumulative">⏱ Cumulative: Month 0–4</div>
+              </div>
+            </div>
+
+            <div class="vt-item">
+              <div class="vt-dot"></div>
+              <div class="vt-body">
+                <div class="vt-header">
+                  <div><div class="vt-phase">Phase 2 — I-140 Petition</div><div class="vt-title">File Form I-140 with USCIS (Self-Petition)</div></div>
+                  <div class="vt-duration green">15 days (premium) or 6–12 months (standard)</div>
+                </div>
+                <div class="vt-desc">Employer or the individual (self-petition) files I-140 with USCIS. EB-1A is one of the few categories allowing complete self-petition — no employer sponsorship required. File with premium processing (Form I-907) for a guaranteed 15-day decision. This establishes the priority date, which is the date USCIS receives the I-140 (or the earlier PERM date, though EB-1A has no PERM). The priority date is your place in the visa queue.</div>
+                <div class="vt-tags"><span class="vt-tag">Form: I-140 + I-907</span><span class="vt-tag">Base fee: $715 + $600 asylum = $1,315</span><span class="vt-tag">Premium: +$2,965</span><span class="vt-tag">Priority date established</span></div>
+                <div class="vt-cumulative">⏱ Cumulative: Month 4–5 (premium) / Month 4–16 (standard)</div>
+              </div>
+            </div>
+
+            <div class="vt-item">
+              <div class="vt-dot yellow"></div>
+              <div class="vt-body">
+                <div class="vt-header">
+                  <div><div class="vt-phase yellow">Phase 3 — Visa Queue</div><div class="vt-title">Check Visa Bulletin — Is Priority Date Current?</div></div>
+                  <div class="vt-duration green">Immediate for most countries / Years for India & China</div>
+                </div>
+                <div class="vt-desc">After I-140 approval, check if your priority date is "current" in the State Dept's monthly Visa Bulletin. EB-1 is currently available for most countries (Rest of World, including most of Europe, Latin America, Africa, etc.) — meaning you can file I-485 immediately after I-140 approval (or even concurrently if using "Dates for Filing" chart). India-born applicants face ~3-year backlog; China-born ~2 years. Check both the "Final Action Dates" and "Dates for Filing" charts — USCIS announces monthly which chart applies.</div>
+                <div class="vt-tags"><span class="vt-tag">Rest of World: CURRENT ✓</span><span class="vt-tag">India EB-1: ~3 yr wait</span><span class="vt-tag">China EB-1: ~2 yr wait</span><span class="vt-tag">Check travel.state.gov monthly</span></div>
+                <div class="vt-cumulative">⏱ Cumulative (Rest of World): Month 5 — proceed immediately to I-485</div>
+              </div>
+            </div>
+
+            <div class="vt-item">
+              <div class="vt-dot"></div>
+              <div class="vt-body">
+                <div class="vt-header">
+                  <div><div class="vt-phase">Phase 4 — Adjustment of Status</div><div class="vt-title">File I-485 (Concurrent or After I-140 Approval)</div></div>
+                  <div class="vt-duration">Concurrent filing or when date is current</div>
+                </div>
+                <div class="vt-desc">If in the US and your priority date is current (or concurrent filing is permitted), file Form I-485 (Application to Register Permanent Residence). If outside the US, begin consular processing (DS-260 + immigrant visa interview). Key tip: EB-1 applicants with a current priority date can file I-485 concurrently with I-140, eliminating the wait between petition approval and green card application — this can save months. Always include I-765 (EAD) and I-131 (advance parole) in the same package.</div>
+                <div class="vt-tags"><span class="vt-tag">Form I-485: $1,440 (incl. biometrics)</span><span class="vt-tag">Concurrent filing available</span><span class="vt-tag">Also file I-765 (EAD) + I-131 (AP)</span><span class="vt-tag">Medical exam I-693 required</span></div>
+                <div class="vt-cumulative">⏱ Cumulative (Rest of World, concurrent): Month 4–5</div>
+              </div>
+            </div>
+
+            <div class="vt-item">
+              <div class="vt-dot"></div>
+              <div class="vt-body">
+                <div class="vt-header">
+                  <div><div class="vt-phase">Phase 5 — Work Authorization</div><div class="vt-title">Receive EAD (Employment Authorization Document)</div></div>
+                  <div class="vt-duration yellow">4–7 months after I-485 filing</div>
+                </div>
+                <div class="vt-desc">After filing I-485 + I-765, USCIS will issue an EAD card (and combo EAD/Advance Parole card) typically within 4–7 months. This allows you to work for any employer in any field while your green card is pending — not just your sponsoring employer. This is a major flexibility advantage, especially for entrepreneurs and those who want to change jobs during the process.</div>
+                <div class="vt-tags"><span class="vt-tag">EAD = work for any employer</span><span class="vt-tag">Processing: 4–7 months (2025)</span><span class="vt-tag">Combo EAD/AP card common</span></div>
+                <div class="vt-cumulative">⏱ Cumulative: ~Month 8–12</div>
+              </div>
+            </div>
+
+            <div class="vt-item">
+              <div class="vt-dot"></div>
+              <div class="vt-body">
+                <div class="vt-header">
+                  <div><div class="vt-phase">Phase 6 — Biometrics & Background</div><div class="vt-title">Biometrics Appointment at ASC</div></div>
+                  <div class="vt-duration">~4–8 weeks after I-485 filing</div>
+                </div>
+                <div class="vt-desc">USCIS schedules a biometrics appointment at a local Application Support Center (ASC). Fingerprints, photo, and signature are collected for FBI background check. This happens automatically — you'll receive an appointment notice (Form I-797C) by mail. Typically takes 15–30 minutes.</div>
+                <div class="vt-tags"><span class="vt-tag">Bring appointment notice + ID</span><span class="vt-tag">Fee included in I-485</span></div>
+                <div class="vt-cumulative">⏱ Cumulative: ~Month 5–6</div>
+              </div>
+            </div>
+
+            <div class="vt-item">
+              <div class="vt-dot"></div>
+              <div class="vt-body">
+                <div class="vt-header">
+                  <div><div class="vt-phase">Phase 7 — Adjudication</div><div class="vt-title">USCIS Reviews I-485 (Interview or Interview Waived)</div></div>
+                  <div class="vt-duration yellow">8–18 months total I-485 processing</div>
+                </div>
+                <div class="vt-desc">Most employment-based EB-1 cases are adjudicated without an in-person interview (interview waived), especially at the Nebraska and Texas Service Centers. If an interview is required, it takes place at a local USCIS field office — you'll answer questions about your background, petition, and US residence. USCIS may also issue an RFE (Request for Evidence) requiring additional documentation, which can add weeks or months. Nebraska Service Center processes fastest (8–14 months); Texas (12–20 months); NBC/field offices (14–24+ months).</div>
+                <div class="vt-tags"><span class="vt-tag">Interview often waived for EB-1</span><span class="vt-tag">Nebraska SC: 8–14 months</span><span class="vt-tag">Texas SC: 12–20 months</span><span class="vt-tag">RFE response: ~87 days to respond</span></div>
+                <div class="vt-cumulative">⏱ Cumulative: ~Month 13–23</div>
+              </div>
+            </div>
+
+            <div class="vt-item">
+              <div class="vt-dot green"></div>
+              <div class="vt-body" style="border-color:var(--green);background:#f0fdf4;">
+                <div class="vt-header">
+                  <div><div class="vt-phase green">Phase 8 — APPROVED ✓</div><div class="vt-title">Green Card Issued — Lawful Permanent Resident</div></div>
+                  <div class="vt-duration green">~12–18 months total (Rest of World)</div>
+                </div>
+                <div class="vt-desc">Upon I-485 approval, Form I-551 (Permanent Resident Card / Green Card) is mailed. You are now a US Lawful Permanent Resident. The green card is valid for 10 years and must be renewed. After 5 years of permanent residency (3 years if married to a US citizen), you may apply for US citizenship through naturalization (Form N-400).</div>
+                <div class="vt-tags"><span class="vt-tag" style="background:#d1fae5;color:#065f46">Green Card valid 10 years</span><span class="vt-tag" style="background:#d1fae5;color:#065f46">Citizenship eligible in 5 yrs (3 yrs for USC spouse)</span><span class="vt-tag" style="background:#d1fae5;color:#065f46">Work for any employer</span><span class="vt-tag" style="background:#d1fae5;color:#065f46">Travel freely</span></div>
+                <div class="vt-cumulative" style="color:var(--green)">🎉 Total: ~12–18 months (Rest of World, with premium I-140)</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="alert-box warn" style="margin-top:20px">
+            <strong>⚠ EB-1B / EB-1C differ slightly:</strong> EB-1B (Outstanding Researcher) requires an employer sponsor and job offer, but no PERM — adding some employer coordination. EB-1C (Multinational Managers) requires the petitioner to be currently employed by a qualifying US entity and has a 45-day premium processing timeline (not 15 days). Both generally follow the same phases above.
+          </div>
+          <div class="footnote">⚖️ Timelines are estimates based on 2025–2026 USCIS data. Processing times change monthly. Sources: <a href="https://www.uscis.gov/green-card/green-card-eligibility/green-card-through-a-job" target="_blank">USCIS EB Green Card</a> · <a href="https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html" target="_blank">State Dept Visa Bulletin</a></div>
+        </div>
+      </div>
+
+      <div id="gc-costs" style="display:none">
+        <h2 style="font-size:17px;font-weight:700;margin-bottom:16px">Employment Green Card Fees (2025–2026)</h2>
+        <div class="alert-box warn">Premium processing fee for I-140 increased to $2,965 effective March 1, 2026. Verify at <a href="https://www.uscis.gov/forms/filing-fees" target="_blank">uscis.gov/forms/filing-fees</a>.</div>
+        <table class="cost-table">
+          <tr><th>Stage</th><th>Form</th><th>Fee</th><th>Notes</th></tr>
+          <tr><td>Prevailing Wage</td><td>ETA-9141 (DOL)</td><td>$0 (govt)</td><td>Employer recruitment costs ~$1,000–3,000</td></tr>
+          <tr><td>PERM Labor Cert.</td><td>ETA-9089 (DOL)</td><td>$0 (govt)</td><td>Attorney fees ~$3,000–5,000</td></tr>
+          <tr><td>I-140 Base + Asylum</td><td>I-140 (USCIS)</td><td>$1,315</td><td>$715 base + $600 Asylum Program Fee</td></tr>
+          <tr><td>I-140 Premium</td><td>I-907</td><td>$2,965</td><td>15-day (45-day for EB-1C/NIW). Effective Mar 1, 2026</td></tr>
+          <tr><td>Adjustment of Status</td><td>I-485</td><td>$1,440</td><td>Per applicant, incl. biometrics (Dec 2024+)</td></tr>
+          <tr><td>Medical Exam</td><td>I-693 (civil surgeon)</td><td>$200–500</td><td>Required; USCIS-designated civil surgeon only</td></tr>
+          <tr><td>Consular Processing</td><td>DS-260 (State Dept)</td><td>$345</td><td>Alternative to I-485 if outside US</td></tr>
+          <tr><td>Attorney Fees (total)</td><td>—</td><td>$5,000–10,000</td><td>EB-2/EB-3 avg; higher for EB-1 self-petitions</td></tr>
+          <tr style="background:#d1fae5"><td><strong>Total EB-1A (in US)</strong></td><td></td><td><strong>~$10,000–14,000</strong></td><td>No PERM; includes premium I-140 + legal</td></tr>
+          <tr style="background:#d1fae5"><td><strong>Total EB-2/EB-3 (in US)</strong></td><td></td><td><strong>~$12,000–18,000</strong></td><td>Includes PERM legal, I-140, I-485</td></tr>
+        </table>
+      </div>
+
+      <div id="gc-backlogs" style="display:none">
+        <div class="timeline-bar">
+          <h3>Total Green Card Timeline — Rest of World (Non-India, Non-China)</h3>
+          <div class="tl-row"><div class="tl-label">EB-1A (Self-petition)</div><div class="tl-track"><div class="tl-fill" style="width:25%"></div></div><div class="tl-val">12–18 months</div></div>
+          <div class="tl-row"><div class="tl-label">EB-1B/1C (Employer)</div><div class="tl-track"><div class="tl-fill" style="width:30%"></div></div><div class="tl-val">18–30 months</div></div>
+          <div class="tl-row"><div class="tl-label">EB-2 NIW (Self-petition)</div><div class="tl-track"><div class="tl-fill" style="width:35%"></div></div><div class="tl-val">2–4 years</div></div>
+          <div class="tl-row"><div class="tl-label">EB-2 Standard</div><div class="tl-track"><div class="tl-fill" style="width:40%"></div></div><div class="tl-val">3–5 years</div></div>
+          <div class="tl-row"><div class="tl-label">EB-3 Standard</div><div class="tl-track"><div class="tl-fill" style="width:45%"></div></div><div class="tl-val">3–6 years</div></div>
+        </div>
+        <div class="timeline-bar" style="border-color:#fca5a5">
+          <h3>⚠ India-Born Applicants — Backlog Estimates (Mar 2026)</h3>
+          <div class="tl-row"><div class="tl-label">EB-1 (India)</div><div class="tl-track"><div class="tl-fill" style="width:20%;background:var(--yellow)"></div></div><div class="tl-val">~3–4 years</div></div>
+          <div class="tl-row"><div class="tl-label">EB-2 NIW (India)</div><div class="tl-track"><div class="tl-fill" style="width:90%;background:var(--red)"></div></div><div class="tl-val">~13–15 years</div></div>
+          <div class="tl-row"><div class="tl-label">EB-2 Standard (India)</div><div class="tl-track"><div class="tl-fill" style="width:90%;background:var(--red)"></div></div><div class="tl-val">~13–15 years</div></div>
+          <div class="tl-row"><div class="tl-label">EB-3 (India)</div><div class="tl-track"><div class="tl-fill" style="width:100%;background:var(--red)"></div></div><div class="tl-val">~15–20+ years</div></div>
+        </div>
+        <div class="alert-box info">Strategy: For India-born H-1B workers, filing PERM as early as possible is critical to locking in a priority date. EB-1A or EB-1C are dramatically faster for those who qualify.</div>
+      </div>
+
+      <div id="gc-considerations" style="display:none">
+        <div class="two-col">
+          <div class="info-card"><h3>⚡ AC21 Portability</h3><ul><li>After I-485 pending 180+ days, you can change employers or job roles</li><li>New job must be "same or similar occupational classification"</li><li>Approved I-140 stays valid for priority date purposes even if employer withdraws after 180 days</li><li class="warn">Always consult attorney before using portability</li></ul></div>
+          <div class="info-card"><h3>🏃 Strategies to Accelerate</h3><ul><li>File PERM as early as possible to lock in priority date</li><li>Pursue EB-1A or EB-2 NIW if qualifications support it (no PERM)</li><li>Dual-file I-140 in EB-2 and EB-3 for flexibility</li><li>Use premium I-140 to establish priority date faster</li><li>Monitor Visa Bulletin — file I-485 as soon as eligible</li></ul></div>
+          <div class="info-card"><h3>⚠ Common Pitfalls</h3><ul><li class="warn">Not starting PERM early enough before H-1B 6-year limit</li><li class="warn">Employer withdrawing I-140 before 180-day threshold</li><li class="cross">Travel outside US without Advance Parole after I-485 filing (abandons application)</li><li class="cross">Missing Visa Bulletin windows — act fast when dates become current</li></ul></div>
+          <div class="info-card"><h3>📎 Official Resources</h3><ul><li><a href="https://www.uscis.gov/green-card/green-card-eligibility/green-card-through-a-job" target="_blank" style="color:var(--accent)">USCIS Employment Green Card →</a></li><li><a href="https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html" target="_blank" style="color:var(--accent)">State Dept Visa Bulletin →</a></li><li><a href="https://www.dol.gov/agencies/eta/foreign-labor/programs/perm" target="_blank" style="color:var(--accent)">DOL PERM Program →</a></li><li><a href="https://www.fragomen.com" target="_blank" style="color:var(--accent)">Fragomen →</a></li><li><a href="https://www.waylit.com" target="_blank" style="color:var(--accent)">Waylit →</a></li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L-1 PAGE -->
+    <div id="page-l1" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>🏢 L-1 — Intracompany Transferee</h1>
+        <p>For multinational companies transferring executives, managers (L-1A) or specialized knowledge employees (L-1B) from a foreign affiliate to a US office. No annual cap, no lottery, dual intent allowed.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">L-1A Max</div><div class="mv">7 years</div></div>
+          <div class="meta-item"><div class="ml">L-1B Max</div><div class="mv">5 years</div></div>
+          <div class="meta-item"><div class="ml">Initial Stay</div><div class="mv">3 yrs (1 yr new office)</div></div>
+          <div class="meta-item"><div class="ml">Cap / Lottery</div><div class="mv">None ✓</div></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="info-card"><h3>L-1A — Executives & Managers</h3><ul><li>Transferring to executive or managerial role at US entity</li><li>Must have worked 12 continuous months (in last 3 years) abroad at related entity in exec/manager capacity</li><li>US and foreign entities must share at least 50% common ownership</li><li>Initial 3 years; extendable to 7 years total</li><li class="warn">Natural EB-1C green card pathway available</li></ul></div>
+        <div class="info-card"><h3>L-1B — Specialized Knowledge</h3><ul><li>Must possess specialized knowledge of company's products, services, techniques, or procedures</li><li>Same 12-month abroad employment requirement</li><li>Initial 3 years; extendable to 5 years total (max)</li><li>Must leave US for 1 year to reset after max stay</li><li class="warn">Harder to prove "specialized" vs. "general" knowledge — document carefully</li></ul></div>
+        <div class="info-card"><h3>Key Advantages</h3><ul><li>No annual cap or lottery — file anytime</li><li>Dual intent — pursue green card simultaneously</li><li>Spouse (L-2) is employment-authorized</li><li>L-1A → EB-1C green card: no PERM required</li><li>Blanket L for large companies streamlines process</li><li>Canadians can apply at the border</li></ul></div>
+        <div class="info-card"><h3>Process & Costs</h3><ul><li>Employer files Form I-129 with USCIS</li><li>Standard: 3–5 months; Premium: 15 business days (~$2,965)</li><li>I-129 base fee: $730 (+ fraud fee $500 for some)</li><li>MRV visa stamp fee (abroad): $185</li><li>New office petitions: initial 1-year approval only</li><li><a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/l-1a-intracompany-transferee-executive-or-manager" target="_blank" style="color:var(--accent)">USCIS L-1A Official Page →</a></li></ul></div>
+      </div>
+    </div>
+
+    <!-- O-1 PAGE -->
+    <div id="page-o1" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>🏆 O-1 — Extraordinary Ability / Achievement</h1>
+        <p>For individuals who have risen to the very top of their field. No annual cap, no lottery, no degree requirement. O-1A covers sciences, business, education, and athletics. O-1B covers arts, film, and television. ~94% approval rate for well-prepared petitions.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Initial Duration</div><div class="mv">Up to 3 years</div></div>
+          <div class="meta-item"><div class="ml">Extensions</div><div class="mv">1-yr increments, unlimited</div></div>
+          <div class="meta-item"><div class="ml">Cap / Lottery</div><div class="mv">None ✓</div></div>
+          <div class="meta-item"><div class="ml">Approval Rate</div><div class="mv">~94% (FY2025)</div></div>
+          <div class="meta-item"><div class="ml">Premium Processing</div><div class="mv">15 business days</div></div>
+        </div>
+      </div>
+      <div class="alert-box info"><strong>💡 "Genius Visa":</strong> While often associated with celebrities, the O-1 is increasingly used by startup founders, researchers, engineers, scientists, and senior business leaders who can demonstrate exceptional impact in their field — not just fame.</div>
+      <div class="two-col">
+        <div class="info-card">
+          <h3>O-1A Criteria (Sciences, Business, Education, Athletics)</h3>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Must meet <strong>at least 3 of the following 8 criteria</strong>, or show a one-time major award (Nobel, Olympic medal, etc.):</p>
+          <ul>
+            <li>Receipt of nationally/internationally recognized prizes or awards for excellence</li>
+            <li>Membership in associations requiring outstanding achievements (judged by experts)</li>
+            <li>Published material about the individual in major trade/professional publications or media</li>
+            <li>Participation as a judge of others' work (individual or on a panel)</li>
+            <li>Original scientific, scholarly, or business contributions of major significance</li>
+            <li>Authorship of scholarly articles in professional journals or major media</li>
+            <li>Critical/essential role for organizations with distinguished reputations</li>
+            <li>Command of a high salary or remuneration relative to others in the field</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>O-1B Criteria (Arts, Film & TV)</h3>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Must demonstrate <strong>"distinction"</strong> — a high level of achievement substantially above that ordinarily encountered, evidenced by meeting at least 3 criteria:</p>
+          <ul>
+            <li>Lead/starring role in productions with distinguished reputation</li>
+            <li>Critical/essential role for organizations or establishments with distinguished reputation</li>
+            <li>Record of major commercial or critically acclaimed successes</li>
+            <li>Significant recognition from organizations, critics, government agencies, or experts</li>
+            <li>High salary/remuneration relative to others in the field</li>
+            <li>For film/TV: additional criteria around recognition from peers, award nominations, etc.</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Process Overview</h3>
+          <ul>
+            <li>US employer or agent files Form I-129 on behalf of the beneficiary</li>
+            <li>Self-petitioning is <strong>not allowed</strong> — a US sponsor is required</li>
+            <li>Agents can represent beneficiaries working for multiple employers</li>
+            <li>Required: consultation letter from a peer group, labor union, or management organization</li>
+            <li>Include: evidence package, recommendation letters, itinerary, employment contract</li>
+            <li>Standard processing: 2.5–6 months; Premium: 15 business days</li>
+            <li><a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/o-1-visa-individuals-with-extraordinary-ability-or-achievement" target="_blank" style="color:var(--accent)">USCIS O-1 Official Page →</a></li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Fees & Key Facts</h3>
+          <ul>
+            <li>I-129 base fee: $1,055 (large employers) / $530 (nonprofits)</li>
+            <li>Asylum Program Fee: $600 (large) / $300 (small ≤25 FTE)</li>
+            <li>Premium Processing: $2,965 for 15-day response</li>
+            <li>New $250 visa integrity fee (FY2025+) at issuance</li>
+            <li>Consultation letter fee: ~$250–750</li>
+            <li>Attorney fees: $5,000–$15,000 typical; $15,000–$25,000 for complex O-1B</li>
+            <li class="warn">O-1 is employer-specific; new employer must file new I-129</li>
+            <li class="warn">Spouse/children (O-3): may accompany but cannot work</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>✅ Advantages</h3>
+          <ul>
+            <li>No cap, no lottery — can file any time of year</li>
+            <li>No degree requirement — achievement-based, not education-based</li>
+            <li>Dual intent (de facto): can pursue green card while on O-1</li>
+            <li>Unlimited 1-year extensions as long as work/project continues</li>
+            <li>Can hold concurrent O-1s for multiple employers/projects (via agent)</li>
+            <li>Strong alternative to H-1B lottery for qualified professionals</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>⚠ Limitations</h3>
+          <ul>
+            <li class="warn">High evidentiary bar — requires comprehensive documentation strategy</li>
+            <li class="warn">Self-petitioning not allowed — need a US employer or agent</li>
+            <li class="cross">Visa is employer/project specific — changing jobs requires new petition</li>
+            <li class="cross">O-3 dependents cannot work (unlike H-4 EAD or L-2 EAD)</li>
+            <li class="warn">Evidence preparation can take 1–4 months if starting from scratch</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footnote">Source: <a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/o-1-visa-individuals-with-extraordinary-ability-or-achievement" target="_blank">USCIS O-1 Page</a> · <a href="https://www.deel.com/blog/o-1-visa-requirements/" target="_blank">Deel O-1 Guide</a></div>
+    </div>
+
+    <!-- E-3 PAGE -->
+    <div id="page-e3" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>🇦🇺 E-3 — Australian Specialty Worker</h1>
+        <p>Available exclusively to Australian nationals. Functionally similar to H-1B for specialty occupations but with a separate 10,500 annual cap that rarely fills, no lottery, and indefinitely renewable.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Eligibility</div><div class="mv">Australian citizens only</div></div>
+          <div class="meta-item"><div class="ml">Duration</div><div class="mv">2 yrs, unlimited renewals</div></div>
+          <div class="meta-item"><div class="ml">Annual Cap</div><div class="mv">10,500 (rarely reached)</div></div>
+          <div class="meta-item"><div class="ml">Lottery</div><div class="mv">No</div></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="info-card"><h3>Eligibility Requirements</h3><ul><li>Must be an Australian national (citizen)</li><li>Bona fide job offer in a specialty occupation</li><li>Bachelor's degree or higher (or equivalent) in a related field</li><li>Employer must file an LCA with the DOL</li><li>Must be paid the prevailing wage for the role/location</li></ul></div>
+        <div class="info-card"><h3>Process & Key Facts</h3><ul><li>Apply directly at a US consulate — no USCIS petition required in most cases</li><li>LCA (Form 9035E) certified by DOL required first</li><li>Form DS-160 + consular interview</li><li>Renewable indefinitely in 2-year increments</li><li>Spouse (E-3D) may obtain work authorization</li><li class="warn">No dual intent — cannot simultaneously pursue green card without risk</li><li><a href="https://travel.state.gov/content/travel/en/us-visas/employment/e3-visa-australian-specialty-occupation.html" target="_blank" style="color:var(--accent)">State Dept E-3 Page →</a></li></ul></div>
+      </div>
+    </div>
+
+    <!-- TN PAGE -->
+    <div id="page-tn" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>🍁 TN — USMCA Professional</h1>
+        <p>For Canadian and Mexican citizens under the USMCA. Covers specific listed professions. Canadians can apply directly at the US border — no USCIS petition required.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Eligibility</div><div class="mv">Canadian & Mexican citizens</div></div>
+          <div class="meta-item"><div class="ml">Duration</div><div class="mv">3 yrs, unlimited renewals</div></div>
+          <div class="meta-item"><div class="ml">Cap / Lottery</div><div class="mv">None</div></div>
+          <div class="meta-item"><div class="ml">Canadians</div><div class="mv">Apply at US border/POE</div></div>
+        </div>
+      </div>
+      <div class="alert-box info"><strong>USMCA 2026 Review:</strong> Joint review occurs in 2026. TN visa expected to continue. Monitor at <a href="https://ustr.gov/trade-agreements/free-trade-agreements/united-states-mexico-canada-agreement" target="_blank" style="color:#5b21b6">USTR.gov →</a></div>
+      <div class="two-col">
+        <div class="info-card"><h3>Eligible Professions (Sample)</h3><ul><li>Accountants, engineers (all disciplines)</li><li>Computer systems analysts</li><li>Scientists (biologists, chemists, geologists)</li><li>Lawyers and attorneys</li><li>Pharmacists, physical therapists, nurses (RN)</li><li>Economists, management consultants</li><li>Architects, urban planners</li><li><a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/tn-nafta-professionals" target="_blank" style="color:var(--accent)">Full USCIS profession list →</a></li></ul></div>
+        <div class="info-card"><h3>How to Apply</h3><ul><li><strong>Canadians:</strong> Present at Class A US port of entry. Bring: employer support letter, credential documents, application fee ($56). Same-day approval common.</li><li><strong>Mexicans:</strong> File DS-160 and attend consular interview at US embassy in Mexico</li><li>Employer must provide support letter: position, duration, USMCA profession</li><li class="warn">No dual intent — pursuing green card may jeopardize TN status</li></ul></div>
+        <div class="info-card"><h3>Key Advantages</h3><ul><li>No cap, no lottery — available year-round</li><li>Canadians: same-day approval at border is common</li><li>Unlimited renewals in 3-year increments</li><li>Much lower cost than H-1B</li></ul></div>
+        <div class="info-card"><h3>Limitations</h3><ul><li class="cross">Only Canadian and Mexican citizens</li><li class="cross">Only specific listed professions qualify</li><li class="warn">No dual intent — green card pursuit may imply immigrant intent</li><li class="warn">Spouse (TD status): cannot work in US</li></ul></div>
+      </div>
+    </div>
+
+    <!-- J-1 PAGE -->
+    <div id="page-j1" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>🎓 J-1 — Exchange Visitor Visa</h1>
+        <p>For participants in State Dept-designated exchange programs: research scholars, professors, interns, trainees, au pairs. Requires a program sponsor organization. Watch for the 2-year home return rule.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Sponsor Req.</div><div class="mv">DS-2019 from org</div></div>
+          <div class="meta-item"><div class="ml">Duration</div><div class="mv">Varies by program</div></div>
+          <div class="meta-item"><div class="ml">Cap / Lottery</div><div class="mv">None</div></div>
+          <div class="meta-item"><div class="ml">2-yr Rule</div><div class="mv">May apply — critical</div></div>
+        </div>
+      </div>
+      <div class="alert-box danger"><strong>⚠ 2-Year Home Residency Requirement (212(e)):</strong> Many J-1 holders must return to their home country for 2 years before obtaining an H-1B, L-1, or immigrant visa. Check your DS-2019/visa for "Subject to 212(e)" notation. A waiver may be available in limited circumstances (hardship, persecution, interested government agency, no-objection statement).</div>
+      <div class="two-col">
+        <div class="info-card"><h3>Common J-1 Program Categories</h3><ul><li>Research scholars and post-doctoral researchers</li><li>University professors and lecturers</li><li>Short-term scholars (conferences, seminars)</li><li>Interns (enrolled students or recent grads)</li><li>Trainees (professional development)</li><li>Government and international visitors</li><li>Summer work/travel</li></ul></div>
+        <div class="info-card"><h3>Key Rules & Considerations</h3><ul><li>Sponsor must be a State Dept-designated organization</li><li>Sponsor issues Form DS-2019 (Certificate of Eligibility)</li><li>Work authorized only under specific program terms</li><li>Spouse (J-2) may obtain work authorization independently</li><li class="warn">2-year home rule blocks H-1B, L-1, and green card without waiver</li><li><a href="https://j1visa.state.gov" target="_blank" style="color:var(--accent)">State Dept J-1 Portal →</a></li></ul></div>
+      </div>
+    </div>
+
+    <!-- F-1 PAGE -->
+    <div id="page-f1" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>📚 F-1 — Academic Student Visa</h1>
+        <p>The primary visa for full-time academic study at US universities, colleges, seminaries, conservatories, and SEVP-certified language programs. Gateway to OPT/CPT work authorization and the most common path for international students.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Program Duration</div><div class="mv">Duration of Status (D/S)*</div></div>
+          <div class="meta-item"><div class="ml">SEVIS Fee</div><div class="mv">$350</div></div>
+          <div class="meta-item"><div class="ml">Visa Application Fee</div><div class="mv">$185 (DS-160)</div></div>
+          <div class="meta-item"><div class="ml">Work Auth</div><div class="mv">OPT / CPT post-year-1</div></div>
+        </div>
+      </div>
+      <div class="alert-box warn"><strong>⚠ 2025 Policy Update:</strong> DHS has moved away from "Duration of Status" (D/S) admission toward fixed-period stays (up to 4 years for most programs), requiring USCIS extension for longer programs. Social media vetting is now conducted for all F/J/M applicants. Consult your Designated School Official (DSO) for current guidance.</div>
+      <div class="two-col">
+        <div class="info-card">
+          <h3>Eligibility Requirements</h3>
+          <ul>
+            <li>Accepted by an SEVP-certified school (receives Form I-20 from school)</li>
+            <li>Enrolled full-time (typically 12+ credit hours/semester for undergrad)</li>
+            <li>Sufficient financial resources to cover full cost of attendance (tuition + living)</li>
+            <li>English proficiency (or enrolled in English language program)</li>
+            <li>Strong ties to home country demonstrating intent to return after studies</li>
+            <li>Must maintain full-time status — dropping below requires DSO authorization</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Application Process</h3>
+          <ul>
+            <li>Step 1: Apply to and get accepted by SEVP-certified school</li>
+            <li>Step 2: School issues Form I-20 (Certificate of Eligibility)</li>
+            <li>Step 3: Pay SEVIS fee ($350) at fmjfee.com</li>
+            <li>Step 4: Complete DS-160 online visa application</li>
+            <li>Step 5: Pay MRV visa application fee ($185)</li>
+            <li>Step 6: Schedule and attend consular interview at US embassy/consulate</li>
+            <li>Step 7: Bring visa + I-20 to US port of entry — admitted by CBP</li>
+            <li class="warn">Apply at least 3–4 months before program start date</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Work Authorization Rules</h3>
+          <ul>
+            <li>Year 1: On-campus work only (up to 20 hrs/week during term; full-time on breaks)</li>
+            <li>After Year 1: CPT or OPT available for off-campus work related to major</li>
+            <li>Economic hardship: off-campus work possible with DSO/USCIS authorization</li>
+            <li class="cross">Unauthorized employment is a serious status violation — can trigger SEVIS termination and removal</li>
+            <li class="warn">Must maintain 20 hrs/week minimum if OPT/CPT employer requires active enrollment</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Family & Key Facts</h3>
+          <ul>
+            <li>Spouse and children under 21: eligible for F-2 dependent visa</li>
+            <li>F-2 spouses: may study part-time only, cannot work</li>
+            <li>F-2 children: may attend K–12 full-time</li>
+            <li>60-day grace period after graduation/OPT end to change status or depart</li>
+            <li>Transfer to another SEVP-certified school: follow official SEVIS transfer process</li>
+            <li><a href="https://studyinthestates.dhs.gov" target="_blank" style="color:var(--accent)">Study in the States (DHS) →</a></li>
+            <li><a href="https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors" target="_blank" style="color:var(--accent)">USCIS Students & Exchange Visitors →</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPT PAGE -->
+    <div id="page-opt" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>💼 OPT & CPT — Student Work Authorization</h1>
+        <p>Two work authorization programs for F-1 students. OPT (Optional Practical Training) is post-graduation work authorization: 12 months standard, 36 months for STEM graduates. CPT (Curricular Practical Training) is work integrated into the curriculum before graduation.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">OPT Standard</div><div class="mv">12 months</div></div>
+          <div class="meta-item"><div class="ml">OPT STEM Extension</div><div class="mv">+24 months = 36 total</div></div>
+          <div class="meta-item"><div class="ml">CPT</div><div class="mv">Pre-graduation, curriculum-tied</div></div>
+          <div class="meta-item"><div class="ml">I-765 Fee</div><div class="mv">$410</div></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="info-card">
+          <h3>OPT — Optional Practical Training</h3>
+          <ul>
+            <li>Allows F-1 students to work in a job directly related to their major field of study</li>
+            <li>12 months post-completion (or pre-completion for up to 12 months, deducted from total)</li>
+            <li>STEM graduates (qualifying degree + E-Verify employer): +24-month extension = 36 months total</li>
+            <li>Application: Request OPT recommendation from DSO ≥ 90 days before desired start</li>
+            <li>File Form I-765 with USCIS; processing: ~3–5 months — apply early</li>
+            <li>STEM extension employer must be enrolled in E-Verify and file Form I-983 training plan</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>CPT — Curricular Practical Training</h3>
+          <ul>
+            <li>Work that is an integral part of the student's curriculum (internships, co-ops, practicums)</li>
+            <li>Available during studies — does not require USCIS filing; authorized by DSO on Form I-20</li>
+            <li>Must be directly tied to the curriculum (often required by the degree program)</li>
+            <li>Full-time CPT for 12+ months reduces standard OPT eligibility to zero — plan carefully</li>
+            <li class="warn">If you use CPT full-time for ≥12 months, you forfeit post-completion OPT entirely</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Cap-Gap Protection (OPT → H-1B)</h3>
+          <ul>
+            <li>If an H-1B petition is filed before OPT EAD expires, "cap-gap" extends F-1/OPT status until October 1</li>
+            <li>STEM OPT holders: work authorization continues through October 1 during cap-gap</li>
+            <li>Non-STEM OPT holders: may need to stop working until Oct 1 if EAD expires before that date</li>
+            <li class="warn">Do not leave the US during cap-gap without a valid H-1B visa or advance planning</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Key Rules & Limits</h3>
+          <ul>
+            <li>Employment must be ≥20 hrs/week and directly related to degree field</li>
+            <li>Unemployment limit: 90 days total (non-STEM); 150 days total (STEM OPT)</li>
+            <li>60-day grace period after OPT ends to change status or depart</li>
+            <li class="cross">Working outside your field of study violates status</li>
+            <li class="warn">Apply for OPT early — USCIS processing can take 3–5 months and delays are common</li>
+            <li><a href="https://www.uscis.gov/opt" target="_blank" style="color:var(--accent)">USCIS OPT Page →</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- M-1 PAGE -->
+    <div id="page-m1" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>🔧 M-1 — Vocational Student Visa</h1>
+        <p>For international students attending non-academic vocational or technical programs in the US: culinary arts, flight school, cosmetology, automotive/mechanical training, etc. More restrictive than F-1 regarding employment.</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Typical Duration</div><div class="mv">1 year (program length)</div></div>
+          <div class="meta-item"><div class="ml">Max Extension</div><div class="mv">3 years total</div></div>
+          <div class="meta-item"><div class="ml">Work During Study</div><div class="mv">Not permitted</div></div>
+          <div class="meta-item"><div class="ml">Post-Study Training</div><div class="mv">Limited (1 mo per 4 mo study)</div></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="info-card">
+          <h3>Eligible Programs</h3>
+          <ul>
+            <li>Vocational and technical training programs</li>
+            <li>Culinary arts, cooking schools</li>
+            <li>Flight school / aviation training</li>
+            <li>Cosmetology and beauty schools</li>
+            <li>Automotive and mechanical trades</li>
+            <li>Medical assistant training programs</li>
+            <li class="cross">Language training is NOT permitted under M-1 (use F-1)</li>
+            <li class="cross">Academic degree programs NOT permitted (use F-1)</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Key Rules</h3>
+          <ul>
+            <li>Must have immediately available funds for full tuition and living costs for entire program</li>
+            <li>Cannot work during studies — no on-campus or off-campus employment</li>
+            <li>Post-study practical training allowed: maximum 1 month per 4 months of study completed</li>
+            <li>Practical training must be authorized before starting — receive EAD from USCIS</li>
+            <li>Cannot change to F-1 student status while in M-1 status (must apply abroad)</li>
+            <li>Spouse and children: M-2 status; may not work; children may attend K–12</li>
+            <li><a href="https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/students-and-employment" target="_blank" style="color:var(--accent)">USCIS Student Employment →</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- B-1/B-2 PAGE -->
+    <div id="page-b12" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <div class="detail-hero">
+        <h1>✈️ B-1/B-2 — Business Visitor & Tourist Visa</h1>
+        <p>B-1 is for temporary business activities (meetings, conferences, negotiations, training). B-2 is for tourism, vacation, and medical treatment. Frequently issued as a combined B-1/B-2 visa. Widely available to most nationalities, and many countries qualify for visa-free entry via the Visa Waiver Program (VWP/ESTA).</p>
+        <div class="meta-strip">
+          <div class="meta-item"><div class="ml">Typical Stay</div><div class="mv">Up to 6 months</div></div>
+          <div class="meta-item"><div class="ml">Visa Validity</div><div class="mv">Up to 10 years (multiple entry)</div></div>
+          <div class="meta-item"><div class="ml">Work Authorized</div><div class="mv">No</div></div>
+          <div class="meta-item"><div class="ml">VWP/ESTA</div><div class="mv">38 countries, 90-day max</div></div>
+        </div>
+      </div>
+      <div class="alert-box danger"><strong>🚫 No Work Permitted:</strong> B-1/B-2 visa holders (and ESTA/VWP visitors) are strictly prohibited from working in the US for compensation. This includes remote work for a foreign employer while physically in the US (legally ambiguous, but generally treated as work). Violations can result in removal and future inadmissibility.</div>
+      <div class="two-col">
+        <div class="info-card">
+          <h3>B-1 — Permitted Business Activities</h3>
+          <ul>
+            <li>Attending business meetings, conferences, and seminars</li>
+            <li>Negotiating contracts on behalf of a foreign employer</li>
+            <li>Conducting market research or independent research</li>
+            <li>Short-term training (receiving training, not working/performing services)</li>
+            <li>Participating in scientific, educational, professional, or business conventions</li>
+            <li class="cross">May NOT receive US-source salary or compensation</li>
+            <li class="cross">May NOT perform hands-on work or deliver services to a US client</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>B-2 — Permitted Activities</h3>
+          <ul>
+            <li>Tourism, vacation, sightseeing</li>
+            <li>Visiting friends or relatives</li>
+            <li>Medical treatment</li>
+            <li>Participation in amateur events (no pay)</li>
+            <li>Short recreational courses (non-credit, incidental)</li>
+            <li class="cross">May NOT enroll in full-time academic or language study programs</li>
+            <li class="cross">May NOT work in any capacity</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Application Process</h3>
+          <ul>
+            <li>Complete Form DS-160 (online nonimmigrant visa application)</li>
+            <li>Pay MRV application fee: $185</li>
+            <li>Schedule and attend consular interview at US embassy/consulate</li>
+            <li>Bring: passport, DS-160 confirmation, photo, financial evidence, ties to home country</li>
+            <li>CBP officer at port of entry determines length of authorized stay (typically up to 6 months)</li>
+            <li>Extension: file Form I-539 with USCIS before current status expires</li>
+            <li><a href="https://travel.state.gov/content/travel/en/us-visas/tourism-visit/visitor.html" target="_blank" style="color:var(--accent)">State Dept B Visa Page →</a></li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Visa Waiver Program (ESTA)</h3>
+          <ul>
+            <li>Citizens of 38 countries (UK, Germany, France, Japan, Australia, etc.) can enter without a visa under VWP for up to 90 days</li>
+            <li>Must apply for ESTA authorization online at esta.cbp.dhs.gov (fee: $21)</li>
+            <li>Same activity restrictions as B-1/B-2 — no work permitted</li>
+            <li>Cannot extend beyond 90 days or change to most other visa statuses from within the US</li>
+            <li class="warn">Overstaying VWP/ESTA — even by 1 day — can result in permanent bar from future VWP use</li>
+            <li><a href="https://esta.cbp.dhs.gov" target="_blank" style="color:var(--accent)">ESTA Application →</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESOURCES PAGE -->
+    <div id="page-resources" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <h2 style="font-size:19px;font-weight:700;margin-bottom:20px">Key Immigration Resources</h2>
+      <h3 style="font-size:14px;font-weight:700;margin:0 0 12px">🏛 Official Government Sources</h3>
+      <div class="resources-grid">
+        <div class="resource-card"><div class="rc-ico">🏛</div><div class="rc-body"><a href="https://www.uscis.gov" target="_blank">USCIS.gov</a><p>Official petitions, forms, policy manual, processing times</p></div></div>
+        <div class="resource-card"><div class="rc-ico">✈️</div><div class="rc-body"><a href="https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html" target="_blank">State Dept Visa Bulletin</a><p>Monthly priority dates for employment-based green cards</p></div></div>
+        <div class="resource-card"><div class="rc-ico">💼</div><div class="rc-body"><a href="https://www.dol.gov/agencies/eta/foreign-labor" target="_blank">DOL Foreign Labor</a><p>LCA filings, PERM, prevailing wage determinations</p></div></div>
+        <div class="resource-card"><div class="rc-ico">🎓</div><div class="rc-body"><a href="https://j1visa.state.gov" target="_blank">J-1 Visa Portal (State Dept)</a><p>Exchange programs, sponsor search, 212(e) waivers</p></div></div>
+        <div class="resource-card"><div class="rc-ico">📚</div><div class="rc-body"><a href="https://studyinthestates.dhs.gov" target="_blank">Study in the States (DHS)</a><p>F-1/M-1 student resources, SEVP school search, OPT</p></div></div>
+        <div class="resource-card"><div class="rc-ico">📋</div><div class="rc-body"><a href="https://www.uscis.gov/forms/filing-fees" target="_blank">USCIS Fee Schedule</a><p>Current filing fees for all USCIS forms</p></div></div>
+        <div class="resource-card"><div class="rc-ico">🔍</div><div class="rc-body"><a href="https://egov.uscis.gov/casestatus/landing.do" target="_blank">USCIS Case Status Tracker</a><p>Track pending USCIS applications online</p></div></div>
+        <div class="resource-card"><div class="rc-ico">✈️</div><div class="rc-body"><a href="https://esta.cbp.dhs.gov" target="_blank">ESTA / Visa Waiver Program</a><p>Apply for ESTA authorization (38 VWP countries)</p></div></div>
+      </div>
+      <h3 style="font-size:14px;font-weight:700;margin:20px 0 12px">⚖️ Leading Immigration Law Firms & Platforms</h3>
+      <div class="resources-grid">
+        <div class="resource-card"><div class="rc-ico">⚖️</div><div class="rc-body"><a href="https://www.fragomen.com" target="_blank">Fragomen.com</a><p>One of the world's largest immigration law firms</p></div></div>
+        <div class="resource-card"><div class="rc-ico">💡</div><div class="rc-body"><a href="https://www.waylit.com" target="_blank">Waylit.com</a><p>Tech-enabled immigration platform for employers</p></div></div>
+        <div class="resource-card"><div class="rc-ico">🌐</div><div class="rc-body"><a href="https://www.boundless.com/immigration-resources" target="_blank">Boundless Immigration</a><p>Plain-language immigration guides and tools</p></div></div>
+        <div class="resource-card"><div class="rc-ico">📰</div><div class="rc-body"><a href="https://www.americanimmigrationcouncil.org" target="_blank">American Immigration Council</a><p>Research, policy analysis, and legal resources</p></div></div>
+        <div class="resource-card"><div class="rc-ico">🏆</div><div class="rc-body"><a href="https://www.deel.com/blog/o-1-visa-requirements/" target="_blank">Deel — O-1 Visa Guide</a><p>Comprehensive O-1 requirements and application support</p></div></div>
+      </div>
+      <div class="footnote">⚠️ <strong>Disclaimer:</strong> This toolkit is for informational purposes only and does not constitute legal advice. Immigration law is highly fact-specific and subject to frequent change. Always consult a licensed US immigration attorney. Current as of March 2026.</div>
+    </div>
+
+    <!-- COMPARE PAGE -->
+    <div id="page-compare" class="page">
+      <div class="back-btn" onclick="showPage('dashboard',null)">← Back to Dashboard</div>
+      <h2 style="font-size:19px;font-weight:700;margin-bottom:20px">⚖️ Visa Comparison Chart</h2>
+      <div style="overflow-x:auto">
+        <table class="cost-table" style="min-width:900px">
+          <tr><th>Visa</th><th>Who Qualifies</th><th>Cap/Lottery</th><th>Duration</th><th>Dual Intent</th><th>Spouse Work</th><th>Typical Employer Cost</th></tr>
+          <tr><td><strong>H-1B</strong></td><td>Specialty occ., bachelor's+, any nationality</td><td style="color:var(--red)">Yes (85K/yr)</td><td>6 yrs (extensible)</td><td style="color:var(--green)">✓ Yes</td><td style="color:var(--yellow)">H-4 EAD (if I-140 approved)</td><td style="color:var(--red)">~$103K+ (incl. $100K fee)</td></tr>
+          <tr><td><strong>L-1A</strong></td><td>Execs/Managers, multinational company</td><td style="color:var(--green)">No cap</td><td>7 yrs max</td><td style="color:var(--green)">✓ Yes</td><td style="color:var(--green)">L-2 EAD</td><td>~$3,000–5,000</td></tr>
+          <tr><td><strong>L-1B</strong></td><td>Specialized knowledge, multinational</td><td style="color:var(--green)">No cap</td><td>5 yrs max</td><td style="color:var(--green)">✓ Yes</td><td style="color:var(--green)">L-2 EAD</td><td>~$3,000–5,000</td></tr>
+          <tr><td><strong>O-1A</strong></td><td>Extraordinary ability (science/business/etc.)</td><td style="color:var(--green)">No cap</td><td>3 yrs + unlimited 1-yr ext.</td><td style="color:var(--green)">✓ De facto</td><td style="color:var(--red)">O-3: no work</td><td>~$7,000–15,000</td></tr>
+          <tr><td><strong>O-1B</strong></td><td>Extraordinary ability (arts/film/TV)</td><td style="color:var(--green)">No cap</td><td>3 yrs + unlimited 1-yr ext.</td><td style="color:var(--green)">✓ De facto</td><td style="color:var(--red)">O-3: no work</td><td>~$8,000–25,000</td></tr>
+          <tr><td><strong>E-3</strong></td><td>Australian nationals, specialty occ.</td><td style="color:var(--green)">10,500/yr (rarely filled)</td><td>2 yrs, unlimited renewals</td><td style="color:var(--red)">✗ No</td><td style="color:var(--green)">E-3D EAD</td><td>~$1,000–3,000</td></tr>
+          <tr><td><strong>TN</strong></td><td>Canadian/Mexican citizens, listed professions</td><td style="color:var(--green)">No cap</td><td>3 yrs, unlimited renewals</td><td style="color:var(--red)">✗ No</td><td style="color:var(--red)">TD: no work auth</td><td>~$500–2,000</td></tr>
+          <tr><td><strong>J-1</strong></td><td>Exchange program participants</td><td style="color:var(--green)">No cap</td><td>Program-dependent</td><td style="color:var(--red)">✗ No</td><td style="color:var(--green)">J-2 EAD</td><td>Low/program-funded</td></tr>
+          <tr><td><strong>F-1</strong></td><td>Full-time academic students (any nationality)</td><td style="color:var(--green)">No cap</td><td>Duration of program</td><td style="color:var(--red)">✗ No</td><td style="color:var(--red)">F-2: no work</td><td>$350 SEVIS + $185 visa</td></tr>
+          <tr><td><strong>OPT (F-1)</strong></td><td>F-1 students, post-graduation work auth</td><td style="color:var(--green)">No cap</td><td>12 mos (+24 STEM = 36)</td><td style="color:var(--red)">✗ No</td><td>N/A</td><td>$410 (I-765)</td></tr>
+          <tr><td><strong>M-1</strong></td><td>Vocational/technical program students</td><td style="color:var(--green)">No cap</td><td>~1 year (up to 3)</td><td style="color:var(--red)">✗ No</td><td style="color:var(--red)">M-2: no work</td><td>$350 SEVIS + $185 visa</td></tr>
+          <tr><td><strong>B-1/B-2</strong></td><td>Business visitors, tourists (most nationalities)</td><td style="color:var(--green)">No cap</td><td>Up to 6 months</td><td style="color:var(--red)">✗ No</td><td style="color:var(--red)">No work</td><td>$185 (applicant pays)</td></tr>
+        </table>
+      </div>
+      <div class="footnote">⚠️ This is a simplified overview. Each visa has nuanced rules. Costs for H-1B exclude the $100,000 Presidential Proclamation fee (Sept. 2025+). Consult a licensed US immigration attorney for advice on your situation. Current as of March 2026.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else {
+    const found = document.querySelector(`.sb-item[onclick*="${id}"]`);
+    if(found) found.classList.add('active');
+  }
+  const titles={dashboard:'Dashboard — US Immigration Toolkit',h1b:'H-1B — Specialty Occupation Deep Dive',l1:'L-1 — Intracompany Transferee',o1:'O-1 — Extraordinary Ability/Achievement',e3:'E-3 — Australian Specialty Worker',tn:'TN — USMCA Professional Visa',j1:'J-1 — Exchange Visitor Visa',f1:'F-1 — Academic Student Visa',opt:'OPT & CPT — Student Work Authorization',m1:'M-1 — Vocational Student Visa',b12:'B-1/B-2 — Business Visitor & Tourist Visa',greencard:'Employment-Based Green Card Deep Dive',resources:'Key Resources & Links',compare:'Visa Comparison Chart'};
+  document.getElementById('topbar-title').textContent = titles[id]||'';
+  window.scrollTo(0,0);
+}
+
+function switchTab(page, tab, btn){
+  const tabs={h1b:['eligibility','process','costs','timeline','considerations'],gc:['categories','process','eb1timeline','costs','backlogs','considerations']};
+  tabs[page].forEach(t=>{
+    const el=document.getElementById(page+'-'+t);
+    if(el) el.style.display=(t===tab)?'block':'none';
+  });
+  const nav=btn.closest('.tab-nav');
+  nav.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
